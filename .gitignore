@@ -1,0 +1,7 @@
+__pycache__/
+Caribe/
+caribe_train/
+caribe_val/
+*.ui
+*.pyc
+*.h5
