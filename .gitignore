@@ -2,6 +2,7 @@ __pycache__/
 Caribe/
 caribe_train/
 caribe_val/
+.DS_Store
 *.ui
 *.pyc
 *.h5
