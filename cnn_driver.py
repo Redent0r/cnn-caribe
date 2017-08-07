@@ -46,7 +46,7 @@ validation_data_dir = 'caribe_val/'
 epochs = 50
 batch_size = 32
 
-img_set_builder.buildTestAndVal(img_src, train_data_dir, validation_data_dir) # run once
+#img_set_builder.buildTestAndVal(img_src, train_data_dir, validation_data_dir) # run once
 
 nb_train_samples = folder_inspector.numberOfImages(train_data_dir)
 nb_validation_samples = folder_inspector.numberOfImages(validation_data_dir)
