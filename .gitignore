@@ -1,5 +1,6 @@
 __pycache__/
 Caribe/
+Caribe_sub/
 caribe_train/
 caribe_val/
 .DS_Store
