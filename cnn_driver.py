@@ -59,7 +59,7 @@ numberOfClasses = folder_inspector.numberOfClasses(train_data_dir)
 print("number of classes: " + str(numberOfClasses) + " in " + train_data_dir)
 
 if K.image_data_format() == 'channels_first':
-    input_shape = (3, img_width, img_height)
+    input_shape = (3, img_width, img_height) # (depth, width, height)
 else:
     input_shape = (img_width, img_height, 3)
 
@@ -80,6 +80,7 @@ model.add(Flatten())
 model.add(Dense(64))
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
+#model.add(Dropout(0.25))
 model.add(Dense(numberOfClasses))
 model.add(Activation('sigmoid'))
 
