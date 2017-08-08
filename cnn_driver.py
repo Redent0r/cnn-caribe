@@ -39,15 +39,15 @@ import img_set_builder
 # dimensions of our images.
 img_width, img_height = 150, 150
 
-img_src = "Caribe/" # original
-# img_src = "Caribe_sub/" # subset
+#img_src = "Caribe/" # original
+img_src = "Caribe_sub/" # subset
 train_data_dir = 'caribe_train/'
 validation_data_dir = 'caribe_val/'
 
 epochs = 50
-batch_size = 32
+batch_size = 3
 
-#img_set_builder.buildTestAndVal(img_src, train_data_dir, validation_data_dir) # run once
+img_set_builder.buildTestAndVal(img_src, train_data_dir, validation_data_dir) # run once
 
 nb_train_samples = folder_inspector.numberOfImages(train_data_dir)
 nb_validation_samples = folder_inspector.numberOfImages(validation_data_dir)
@@ -115,6 +115,7 @@ model.fit_generator(
     steps_per_epoch=nb_train_samples // batch_size,
     epochs=epochs,
     validation_data=validation_generator,
+    #validation_steps=1)
     validation_steps=nb_validation_samples // batch_size)
 
 model.save('first_try.h5')
