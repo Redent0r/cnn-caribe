@@ -47,12 +47,12 @@ else:
 input = Input(shape= input_shape,name = 'image_input')
 
 # build the VGG16 network
-model = applications.VGG16(weights='imagenet', include_top=False)
+model = VGG16(weights='imagenet', include_top=False)
 model.summary()
 
 # build a classifier model to put on top of the convolutional model
 top_model = Sequential()
-top_model.add(Flatten(input_shape=input))
+top_model.add(Flatten(input_shape=input_shape))
 top_model.add(Dense(256, activation='relu'))
 top_model.add(Dropout(0.5))
 top_model.add(Dense(1, activation='sigmoid'))
