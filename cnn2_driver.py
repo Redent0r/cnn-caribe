@@ -90,7 +90,7 @@ model.add(Dense(numberOfClasses))
 model.add(Activation('softmax'))
 
 # initiate RMSprop optimizer
-#opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
+opt = optimizers.rmsprop(lr=0.0001, decay=1e-6)
 #-----------------------------------------------------
 model.compile(loss='categorical_crossentropy',
               optimizer="RMSprop",
