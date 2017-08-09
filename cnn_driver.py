@@ -39,8 +39,8 @@ import img_set_builder
 # dimensions of our images.
 img_width, img_height = 150, 150
 
-#img_src = "Caribe/" # original
-img_src = "Caribe_sub/" # subset
+img_src = "Caribe/" # original
+#img_src = "Caribe_sub/" # subset
 train_data_dir = 'caribe_train/'
 validation_data_dir = 'caribe_val/'
 

@@ -18,15 +18,15 @@ import img_set_builder
 # dimensions of our images.
 img_width, img_height = 150, 150
 
-#img_src = "Caribe/" # original
-img_src = "Caribe_sub/" # subset
+img_src = "Caribe/" # original
+#img_src = "Caribe_sub/" # subset
 train_data_dir = 'caribe_train/'
 validation_data_dir = 'caribe_val/'
 
 epochs = 50
-batch_size = 3
+batch_size = 32
 
-img_set_builder.buildTestAndVal(img_src, train_data_dir, validation_data_dir) # run once
+#img_set_builder.buildTestAndVal(img_src, train_data_dir, validation_data_dir) # run once
 
 nb_train_samples = folder_inspector.numberOfImages(train_data_dir)
 nb_validation_samples = folder_inspector.numberOfImages(validation_data_dir)
@@ -42,21 +42,6 @@ if K.image_data_format() == 'channels_first':
 else:
     input_shape = (img_width, img_height, 3)
 
-
-#---------------------------------------------------------
-# model = Sequential()
-# model.add(Conv2D(32, (3, 3), input_shape=input_shape))
-# model.add(Activation('relu'))
-# model.add(MaxPooling2D(pool_size=(2, 2)))
-
-# model.add(Conv2D(32, (3, 3)))
-# model.add(Activation('relu'))
-# model.add(MaxPooling2D(pool_size=(2, 2)))
-
-# model.add(Conv2D(64, (3, 3)))
-# model.add(Activation('relu'))
-# model.add(MaxPooling2D(pool_size=(2, 2)))
-#----------------------------------------------------------
 
 #Get back the convolutional part of a VGG network trained on ImageNet
 model_vgg16_conv = VGG16(weights='imagenet', include_top=False)
@@ -84,6 +69,9 @@ my_model = Model(input=input, output=x)
 # #model.add(Dropout(0.25))
 # model.add(Dense(numberOfClasses))
 # model.add(Activation('sigmoid'))
+
+for layer in my_model.layers[:25]: # do not train vgg16 layers
+	layer.trainable = False
 
 my_model.compile(loss='categorical_crossentropy',
                optimizer='adam',
