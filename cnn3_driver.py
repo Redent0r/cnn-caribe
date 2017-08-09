@@ -4,7 +4,7 @@ from keras.applications.vgg16 import preprocess_input
 from keras.layers import Input, Flatten, Dense
 from keras.models import Model
 import numpy as np
-
+from keras import optimizers
 import os
 import shutil
 from keras.preprocessing.image import ImageDataGenerator
@@ -14,6 +14,8 @@ from keras.layers import Activation, Dropout, Flatten, Dense
 from keras import backend as K
 import folder_inspector
 import img_set_builder
+
+K.set_image_dim_ordering("th")
 
 # dimensions of our images.
 img_width, img_height = 150, 150
@@ -43,35 +45,35 @@ else:
     input_shape = (img_width, img_height, 3)
 
 
+
+#Get back the convolutional part of a VGG network trained on ImageNet
+model_vgg16_conv = VGG16(weights='imagenet', include_top=False)
+#model_vgg16_conv.summary()
+
 #Create your own input format (here 3x200x200)
-input = Input(shape= input_shape,name = 'image_input')
+input = Input(shape = input_shape, name = 'image_input')
 
-# build the VGG16 network
-model = VGG16(weights='imagenet', include_top=False)
-model.summary()
+#Use the generated model 
+output_vgg16_conv = model_vgg16_conv(input)
 
-# build a classifier model to put on top of the convolutional model
-top_model = Sequential()
-top_model.add(Flatten(input_shape=input_shape))
-top_model.add(Dense(256, activation='relu'))
-top_model.add(Dropout(0.5))
-top_model.add(Dense(1, activation='sigmoid'))
+#Add the fully-connected layers 
+x = Flatten(name='flatten')(output_vgg16_conv)
+x = Dense(4096, activation='relu', name='fc1')(x)
+x = Dense(4096, activation='relu', name='fc2')(x)
+x = Dense(numberOfClasses, activation='softmax', name='predictions')(x)
 
-# note that it is necessary to start with a fully-trained
-# classifier, including the top classifier,
-# in order to successfully do fine-tuning
+#Create your own model 
+my_model = Model(input=input, output=x)
 
-# add the model on top of the convolutional base
-model.add(top_model)
+#In the summary, weights and layers from VGG part will be hidden, but they will be fit during the training
+my_model.summary()
 
-# set the first 25 layers (up to the last conv block)
-# to non-trainable (weights will not be updated)
-for layer in model.layers[:25]:
+for layer in my_model.layers[:25]:
     layer.trainable = False
 
 # compile the model with a SGD/momentum optimizer
 # and a very slow learning rate.
-model.compile(loss='categorical_crossentropy',
+my_model.compile(loss='categorical_crossentropy',
               optimizer=optimizers.SGD(lr=1e-4, momentum=0.9),
               metrics=['accuracy'])
 
