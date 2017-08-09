@@ -43,39 +43,37 @@ else:
     input_shape = (img_width, img_height, 3)
 
 
-#Get back the convolutional part of a VGG network trained on ImageNet
-model_vgg16_conv = VGG16(weights='imagenet', include_top=False)
-model_vgg16_conv.summary()
-
 #Create your own input format (here 3x200x200)
 input = Input(shape= input_shape,name = 'image_input')
 
-#Use the generated model 
-output_vgg16_conv = model_vgg16_conv(input)
+# build the VGG16 network
+model = applications.VGG16(weights='imagenet', include_top=False)
+model.summary()
 
-#Add the fully-connected layers 
-x = Flatten(name='flatten')(output_vgg16_conv)
-x = Dense(4096, activation='relu', name='fc1')(x)
-x = Dense(4096, activation='relu', name='fc2')(x)
-x = Dense(numberOfClasses, activation='softmax', name='predictions')(x)
+# build a classifier model to put on top of the convolutional model
+top_model = Sequential()
+top_model.add(Flatten(input_shape=input))
+top_model.add(Dense(256, activation='relu'))
+top_model.add(Dropout(0.5))
+top_model.add(Dense(1, activation='sigmoid'))
 
-#Create your own model 
-my_model = Model(input=input, output=x)
+# note that it is necessary to start with a fully-trained
+# classifier, including the top classifier,
+# in order to successfully do fine-tuning
 
-# model.add(Flatten())
-# model.add(Dense(64))
-# model.add(Activation('relu'))
-# model.add(Dropout(0.5))
-# #model.add(Dropout(0.25))
-# model.add(Dense(numberOfClasses))
-# model.add(Activation('sigmoid'))
+# add the model on top of the convolutional base
+model.add(top_model)
 
-for layer in my_model.layers[:25]: # do not train vgg16 layers
-	layer.trainable = False
+# set the first 25 layers (up to the last conv block)
+# to non-trainable (weights will not be updated)
+for layer in model.layers[:25]:
+    layer.trainable = False
 
-my_model.compile(loss='categorical_crossentropy',
-               optimizer='adam',
-               metrics=['accuracy'])
+# compile the model with a SGD/momentum optimizer
+# and a very slow learning rate.
+model.compile(loss='categorical_crossentropy',
+              optimizer=optimizers.SGD(lr=1e-4, momentum=0.9),
+              metrics=['accuracy'])
 
 # this is the augmentation configuration we will use for training
 train_datagen = ImageDataGenerator(
