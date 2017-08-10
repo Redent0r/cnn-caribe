@@ -15,18 +15,18 @@ from keras import backend as K
 import folder_inspector
 import img_set_builder
 
-K.set_image_dim_ordering("th")
+#K.set_image_dim_ordering("th")
 
 # dimensions of our images.
-img_width, img_height = 150, 150
+img_width, img_height = 400, 300
 
-img_src = "Caribe/" # original
-#img_src = "Caribe_sub/" # subset
+#img_src = "Caribe/" # original
+img_src = "Caribe_sub/" # subset
 train_data_dir = 'caribe_train/'
 validation_data_dir = 'caribe_val/'
 
 epochs = 50
-batch_size = 32
+batch_size = 4
 
 #img_set_builder.buildTestAndVal(img_src, train_data_dir, validation_data_dir) # run once
 
