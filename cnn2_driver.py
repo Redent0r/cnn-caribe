@@ -11,6 +11,7 @@ import img_set_builder
 from keras import optimizers
 from keras import applications
 import numpy as np
+from keras.utils.np_utils import to_categorical
 
 # dimensions of our images.
 img_width, img_height = 150, 150
@@ -54,8 +55,7 @@ def save_bottlebeck_features():
 
     bottleneck_features_train = model.predict_generator(
         generator, train_steps)
-    np.save(open('bottleneck_features_train.npy', 'wb'),
-            bottleneck_features_train)
+    np.save('bottleneck_features_train.npy', bottleneck_features_train)
 
     generator = datagen.flow_from_directory(
         validation_data_dir,
@@ -65,30 +65,29 @@ def save_bottlebeck_features():
         shuffle=False)
     bottleneck_features_validation = model.predict_generator(
         generator, val_steps)
-    np.save(open('bottleneck_features_validation.npy', 'wb'),
-            bottleneck_features_validation)
+    np.save('bottleneck_features_validation.npy', bottleneck_features_validation)
 
 def train_top_model():
 
-    generator_top = datagen_top.flow_from_directory(  
+    generator_top = datagen.flow_from_directory(  
          train_data_dir,  
          target_size=(img_width, img_height),  
          batch_size=batch_size,  
          class_mode='categorical',  
          shuffle=False)  
 
-    train_data = np.load(open('bottleneck_features_train.npy', 'rb'))
+    train_data = np.load('bottleneck_features_train.npy')
     train_labels = generator_top.classes
-     train_labels = to_categorical(train_labels, num_classes=numberOfClasses)
+    train_labels = to_categorical(train_labels, num_classes=numberOfClasses)
 
-    generator_top = datagen_top.flow_from_directory(  
+    generator_top = datagen.flow_from_directory(  
          validation_data_dir,  
          target_size=(img_width, img_height),  
          batch_size=batch_size,  
          class_mode=None,  
          shuffle=False)  
 
-    validation_data = np.load(open('bottleneck_features_validation.npy', 'rb'))
+    validation_data = np.load('bottleneck_features_validation.npy')
     validation_labels = generator_top.classes
     validation_labels = to_categorical(validation_labels, num_classes=numberOfClasses)  
 
@@ -105,7 +104,7 @@ def train_top_model():
               epochs=epochs,
               batch_size=batch_size,
               validation_data=(validation_data, validation_labels))
-    
+
     model.save_weights(top_model_weights_path)
 
 save_bottlebeck_features()
