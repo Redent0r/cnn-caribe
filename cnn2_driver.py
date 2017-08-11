@@ -35,8 +35,9 @@ batch_size = 16
 train_steps = nb_train_samples // batch_size if nb_train_samples // batch_size  != 0 else 1
 val_steps = nb_validation_samples // batch_size if nb_validation_samples // batch_size != 0 else 1
 
+datagen = ImageDataGenerator(rescale=1. / 255)
+
 def save_bottlebeck_features():
-    datagen = ImageDataGenerator(rescale=1. / 255)
 
     # build the VGG16 network
     model = applications.VGG16(include_top=False, weights='imagenet')
@@ -50,6 +51,7 @@ def save_bottlebeck_features():
         batch_size=batch_size,
         class_mode=None,
         shuffle=False)
+
     bottleneck_features_train = model.predict_generator(
         generator, train_steps)
     np.save(open('bottleneck_features_train.npy', 'wb'),
@@ -67,13 +69,28 @@ def save_bottlebeck_features():
             bottleneck_features_validation)
 
 def train_top_model():
+
+    generator_top = datagen_top.flow_from_directory(  
+         train_data_dir,  
+         target_size=(img_width, img_height),  
+         batch_size=batch_size,  
+         class_mode='categorical',  
+         shuffle=False)  
+
     train_data = np.load(open('bottleneck_features_train.npy', 'rb'))
-    train_labels = np.array(
-        [0] * (nb_train_samples // 2) + [1] * (nb_train_samples // 2))
+    train_labels = generator_top.classes
+     train_labels = to_categorical(train_labels, num_classes=numberOfClasses)
+
+    generator_top = datagen_top.flow_from_directory(  
+         validation_data_dir,  
+         target_size=(img_width, img_height),  
+         batch_size=batch_size,  
+         class_mode=None,  
+         shuffle=False)  
 
     validation_data = np.load(open('bottleneck_features_validation.npy', 'rb'))
-    validation_labels = np.array(
-        [0] * (nb_validation_samples // 2) + [1] * (nb_validation_samples // 2))
+    validation_labels = generator_top.classes
+    validation_labels = to_categorical(validation_labels, num_classes=numberOfClasses)  
 
     model = Sequential()
     model.add(Flatten(input_shape=train_data.shape[1:]))
@@ -88,6 +105,7 @@ def train_top_model():
               epochs=epochs,
               batch_size=batch_size,
               validation_data=(validation_data, validation_labels))
+    
     model.save_weights(top_model_weights_path)
 
 save_bottlebeck_features()
