@@ -18,7 +18,7 @@ import img_set_builder
 #K.set_image_dim_ordering("th")
 
 # dimensions of our images.
-img_width, img_height = 400, 300
+img_width, img_height = 150, 150
 
 #img_src = "Caribe/" # original
 img_src = "Caribe_sub/" # subset
@@ -26,7 +26,7 @@ train_data_dir = 'caribe_train/'
 validation_data_dir = 'caribe_val/'
 
 epochs = 50
-batch_size = 4
+batch_size = 32
 
 #img_set_builder.buildTestAndVal(img_src, train_data_dir, validation_data_dir) # run once
 
@@ -100,12 +100,15 @@ validation_generator = test_datagen.flow_from_directory(
     batch_size=batch_size,
     class_mode='categorical')
 
+train_steps = nb_train_samples // batch_size if nb_train_samples // batch_size  != 0 else 1
+val_steps = nb_validation_samples // batch_size if nb_validation_samples // batch_size != 0 else 1
+
 my_model.fit_generator(
     train_generator,
-    steps_per_epoch=nb_train_samples // batch_size,
+    steps_per_epoch=train_steps,
     epochs=epochs,
     validation_data=validation_generator,
     #validation_steps=1)
-    validation_steps=nb_validation_samples // batch_size)
+    validation_steps=val_steps)
 
 my_model.save('first_try3.h5')

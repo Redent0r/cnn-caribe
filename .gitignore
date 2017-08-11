@@ -5,5 +5,6 @@ caribe_train/
 caribe_val/
 .DS_Store
 *.ui
+*.npy
 *.pyc
 *.h5
