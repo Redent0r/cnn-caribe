@@ -23,7 +23,7 @@ def buildTestAndVal(src, destTrain, destVal):
 					moveDir(destTrain + dirname.split("/")[-1].replace(" ", "_"), (destVal + dirname.split("/")[-1]).replace(" ", "_"))
 					break
 					
-	print("trining and testing img sets succesfully build")
+	print("training and testing img sets succesfully build")
 def copyDir(root_src_dir, root_dst_dir):
 
 	for src_dir, dirs, files in os.walk(root_src_dir):
