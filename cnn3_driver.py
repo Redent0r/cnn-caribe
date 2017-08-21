@@ -178,14 +178,13 @@ def train_top_model():
     plt.legend(['train', 'test'], loc='upper left')
     plt.show()
 
-def predict():
+def predict(image_path):
     # load the class_indices saved in the earlier step
     class_dictionary = np.load('class_indices.npy').item()
 
     num_classes = len(class_dictionary)
 
     # add the path to your test image below
-    image_path = '/home/redent0r/Desktop/cnn-caribe/caribe_val/Anguilla_rostrata/Anguilla rostrata [James Van Tassell & DR Robertson [NC ]1861.jpg'
 
     orig = cv2.imread(image_path)
 
@@ -226,7 +225,8 @@ def predict():
     label = inv_map[inID]
 
     # get the prediction label
-    print("Image ID: {}, Label: {}".format(inID, label))
+    #print("Image ID: {}, Label: {}".format(inID, label))
+    return label
 
     # # display the predictions with the image
     # cv2.putText(orig, "Predicted: {}".format(label), (10, 30),
@@ -236,7 +236,9 @@ def predict():
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
 
-save_bottlebeck_features()
-train_top_model()
-predict()
-#cv2.destroyAllWindows()
+if __name__ == "__main__":
+
+	save_bottlebeck_features()
+	train_top_model()
+	#predict()
+	#cv2.destroyAllWindows()

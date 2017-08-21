@@ -5,12 +5,13 @@ from random import randint
 
 def buildTestAndVal(src, destTrain, destVal):
 	print("building training and testing img sets in " + destTrain + " and " + destVal)
+	
 	if os.path.exists(destTrain):
 		print("deleting previously found train set")
 		shutil.rmtree(destTrain)
-		print("deleting previously found val set")
 
 	if os.path.exists(destVal):
+		print("deleting previously found val set")
 		shutil.rmtree(destVal)
 
 	for dirname, dirnames, filenames in os.walk(src):
