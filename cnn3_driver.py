@@ -15,6 +15,7 @@ reference: https://gist.github.com/Thimira/354b90d59faf8b0d758f74eae3a511e2
 '''
 
 import numpy as np
+import keras
 from keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
 from keras.models import Sequential
 from keras.layers import Dropout, Flatten, Dense
@@ -30,7 +31,7 @@ img_src = "Caribe_sub/" # subset
 train_data_dir = 'caribe_train/'
 validation_data_dir = 'caribe_val/'
 
-#img_set_builder.buildTestAndVal(img_src, train_data_dir, validation_data_dir) # run once
+img_set_builder.buildTestAndVal(img_src, train_data_dir, validation_data_dir) # run once
 
 # dimensions of our images.
 img_width, img_height = 224, 224
@@ -38,14 +39,19 @@ img_width, img_height = 224, 224
 top_model_weights_path = 'bottleneck_fc_model.h5'
 
 # number of epochs to train top model
-epochs = 50
+epochs = 75
 # batch size used by flow_from_directory and predict_generator
-batch_size = 32
+batch_size = 128
 
+# # with data augmentation
+# datagen_train = ImageDataGenerator(rescale=1. / 255,
+#     			shear_range = 0.2,
+#     			zoom_range = 0.2,
+#     			horizontal_flip = True)
+
+# without data augmentation and horizontal flip
 datagen_train = ImageDataGenerator(rescale=1. / 255,
-    			shear_range = 0.2,
-    			zoom_range = 0.2,
-    			horizontal_flip = True)
+                horizontal_flip = True)
 
 datagen_val = ImageDataGenerator(rescale=1. / 255)
 
@@ -62,7 +68,7 @@ def save_bottlebeck_features():
         shuffle=False)
 
     print(len(generator.filenames))
-    print(generator.class_indices)
+    #print(generator.class_indices)
     print(len(generator.class_indices))
 
     nb_train_samples = len(generator.filenames)
@@ -139,7 +145,10 @@ def train_top_model():
     model.add(Dropout(0.5))
     model.add(Dense(num_classes, activation='sigmoid'))
 
-    model.compile(optimizer='rmsprop',
+    # setting clipnorm and clipvalue helps with loss = nan but does not solves it
+    rmsOpt = keras.optimizers.RMSprop(lr=2e-4, rho=0.9, epsilon=1e-08, decay=0.0, clipnorm=1. , clipvalue=0.5)
+
+    model.compile(optimizer=rmsOpt,
                   loss='categorical_crossentropy', metrics=['accuracy'])
 
     history = model.fit(train_data, train_labels,
@@ -178,7 +187,7 @@ def train_top_model():
     plt.legend(['train', 'test'], loc='upper left')
     plt.show()
 
-def predict(image_path):
+def predict(image_path, top_results):
     # load the class_indices saved in the earlier step
     class_dictionary = np.load('class_indices.npy').item()
 
@@ -214,15 +223,31 @@ def predict(image_path):
 
     # use the bottleneck prediction on the top model to get the final
     # classification
-    class_predicted = model.predict_classes(bottleneck_prediction)
+    class_predicted = model.predict_classes(bottleneck_prediction, verbose=0)
 
-    probabilities = model.predict_proba(bottleneck_prediction)
+    #print('class predicted: ')
+    #print(class_predicted)
+
+
+    probabilities = model.predict_proba(bottleneck_prediction, verbose=0).tolist()[0]
+
+    #print('prob: ')
+    #print(probabilities)
+
+    topX = sorted(zip(probabilities), reverse=True)[:top_results]
+    #print(type(topX))
+
+    label = []
 
     inID = class_predicted[0]
 
     inv_map = {v: k for k, v in class_dictionary.items()}
 
-    label = inv_map[inID]
+    #label = inv_map[inID]
+
+    for prob in topX:
+        label.append(inv_map[probabilities.index(prob[0])])
+
 
     # get the prediction label
     #print("Image ID: {}, Label: {}".format(inID, label))
