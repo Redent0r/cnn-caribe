@@ -9,7 +9,7 @@ images = [IMG_DIR + f for f in listdir(IMG_DIR) if isfile(join(IMG_DIR, f))]
 print(images)
 
 for img in images:
-	pred = cnn3_driver.predict(img, 3)
+	pred = cnn3_driver.predict(img, 10)
 	print('Image name: ' + img)
 	print('Prediction: ')
 	print(pred)

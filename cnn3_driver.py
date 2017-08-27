@@ -12,6 +12,9 @@ OpenCV 3.2.0
 This should work with Theano as well, but untested.
 
 reference: https://gist.github.com/Thimira/354b90d59faf8b0d758f74eae3a511e2
+
+VGG16 on Caribe sweetspot:
+128 batch, 50 epock, without dropout
 '''
 
 import numpy as np
@@ -26,8 +29,8 @@ import math
 import cv2
 import img_set_builder
 
-#img_src = "Caribe/" # original
-img_src = "Caribe_sub/" # subset
+img_src = "Caribe/" # original
+#img_src = "Caribe_sub/" # subset
 train_data_dir = 'caribe_train/'
 validation_data_dir = 'caribe_val/'
 
@@ -39,7 +42,7 @@ img_width, img_height = 224, 224
 top_model_weights_path = 'bottleneck_fc_model.h5'
 
 # number of epochs to train top model
-epochs = 75
+epochs = 50
 # batch size used by flow_from_directory and predict_generator
 batch_size = 128
 
@@ -59,6 +62,7 @@ def save_bottlebeck_features():
 
     # build the VGG16 network
     model = applications.VGG16(include_top=False, weights='imagenet')
+    #model = applications.resnet50.ResNet50(include_top=False, weights='imagenet')
 
     generator = datagen_train.flow_from_directory(
         train_data_dir,
@@ -142,7 +146,7 @@ def train_top_model():
     model = Sequential()
     model.add(Flatten(input_shape=train_data.shape[1:]))
     model.add(Dense(256, activation='relu'))
-    model.add(Dropout(0.5))
+    #model.add(Dropout(0.5))
     model.add(Dense(num_classes, activation='sigmoid'))
 
     # setting clipnorm and clipvalue helps with loss = nan but does not solves it
@@ -230,6 +234,7 @@ def predict(image_path, top_results):
 
 
     probabilities = model.predict_proba(bottleneck_prediction, verbose=0).tolist()[0]
+
 
     #print('prob: ')
     #print(probabilities)
