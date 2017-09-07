@@ -34,7 +34,7 @@ img_src = "Caribe/" # original
 train_data_dir = 'caribe_train/'
 validation_data_dir = 'caribe_val/'
 
-img_set_builder.buildTestAndVal(img_src, train_data_dir, validation_data_dir) # run once
+#img_set_builder.buildTestAndVal(img_src, train_data_dir, validation_data_dir) # run once
 
 # dimensions of our images.
 img_width, img_height = 224, 224
@@ -201,7 +201,7 @@ def predict(image_path, top_results):
 
     orig = cv2.imread(image_path)
 
-    print("[INFO] loading and preprocessing image...")
+    #print("[INFO] loading and preprocessing image...")
     image = load_img(image_path, target_size=(224, 224))
     image = img_to_array(image)
 
